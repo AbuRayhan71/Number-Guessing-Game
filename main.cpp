@@ -1,65 +1,81 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-
-void printProximityHint(int guess, int secretNumber) {
-    // Function to provide hints to the player
-    int diff = abs(secretNumber - guess);
-    if (diff >= 50) std::cout << "You are very cold.\n";
-    else if (diff >= 20) std::cout << "You are cold.\n";
-    else if (diff >= 10) std::cout << "You are warm.\n";
-    else std::cout << "You are hot!\n";
-}
+#include <limits>
+using namespace std;
 
 int main() {
-    srand(time(0));
-    
-    int difficulty, maxNumber, maxGuesses;
-    char playAgain;
+  // Seed the random number generator with the current time
+  srand(time(0));
 
-    do {
-        std::cout << "Select Difficulty Level (1- Easy, 2- Medium, 3- Hard): ";
-        std::cin >> difficulty;
+  // Generate the secret number between 1 and 1000 (inclusive)
+  int secretNumber = rand() % 1000 + 1;
 
-        switch (difficulty) {
-            case 1: maxNumber = 50; maxGuesses = 10; break;
-            case 2: maxNumber = 100; maxGuesses = 7; break;
-            case 3: maxNumber = 200; maxGuesses = 5; break;
-            default: maxNumber = 100; maxGuesses = 7; // Default to Medium
-        }
+  // Create an array to store the user's guesses
+  int guesses[1000];
 
-        int secretNumber = rand() % maxNumber + 1;
-        int guessCount = 0;
-        bool guessedCorrectly = false;
+  // Initialize the guess count to 0
+  int guessCount = 0;
 
-        std::cout << "Guess the number (between 1 and " << maxNumber << "): ";
+  // Prompt the user to guess the number
+  cout << "Guess the number (between 1 and 1000): ";
 
-        while (guessCount < maxGuesses) {
-            int guess;
-            std::cin >> guess;
-            guessCount++;
+  // Keep track of the user's guesses until they guess the secret number or reach the maximum number of guesses
+  while (guessCount < 1000) {
+    // Read the user's guess as an integer
+    int guess;
+    bool isValidInput = false;
 
-            if (guess < secretNumber) {
-                std::cout << "Too low. ";
-                printProximityHint(guess, secretNumber);
-            } else if (guess > secretNumber) {
-                std::cout << "Too high. ";
-                printProximityHint(guess, secretNumber);
-            } else {
-                std::cout << "Correct! You guessed the number in " << guessCount << " tries.\n";
-                guessedCorrectly = true;
-                break;
-            }
-        }
+    // Keep prompting the user for a valid input until they enter an integer
+    while (!isValidInput) {
+      if (cin >> guess) {
+        isValidInput = true;
+      } else {
+        // Clear the error flags
+        cin.clear();
 
-        if (!guessedCorrectly) {
-            std::cout << "Sorry, you did not guess the number. It was " << secretNumber << ".\n";
-        }
+        // Ignore the invalid input
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        std::cout << "Do you want to play again? (Y/N): ";
-        std::cin >> playAgain;
+        // Prompt the user to enter an integer again
+        cout << "Invalid input. Please enter an integer: ";
+      }
+    }
 
-    } while (playAgain == 'Y' || playAgain == 'y');
+    // Store the user's guess in the guesses array
+    guesses[guessCount] = guess;
 
-    return 0;
+    // Increment the guess count
+    guessCount++;
+
+    // Check if the user's guess is lower, higher, or equal to the secret number
+    if (guess < secretNumber) {
+      // Print "Too low. Try again: "
+      cout << "Too low. Try again: ";
+    } else if (guess > secretNumber) {
+      // Print "Too high. Try again: "
+      cout << "Too high. Try again: ";
+    } else {
+      // Print "Correct! You guessed the number in " followed by the number of guesses
+      cout << "Correct! You guessed the number in " << guessCount << " tries.\n";
+
+      // Break out of the loop
+      break;
+    }
+  }
+
+  // If the user has made 1000 guesses and hasn't guessed the secret number correctly, print "You didn't guess the number. The number was " followed by the secret number
+  if (guessCount == 1000) {
+    cout << "You didn't guess the number. The number was " << secretNumber << ".\n";
+  }
+
+  // Print "Your guesses were: " followed by the user's guesses separated by spaces
+  cout << "Your guesses were: ";
+  for (int i = 0; i < guessCount; i++) {
+    cout << guesses[i] << " ";
+  }
+  cout << endl;
+
+  // Return 0 to indicate that the program has executed successfully
+  return 0;
 }
